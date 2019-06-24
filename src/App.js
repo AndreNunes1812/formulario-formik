@@ -1,26 +1,54 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { Form, Input } from '@rocketseat/unform';
+import * as Yup from 'yup';
+
+const schema = Yup.object().shape({
+  name: Yup.string().required(),
+  email: Yup.string()
+    .email()
+    .required(),
+  password: Yup.string().when('$updatePassword', {
+    is: true,
+    then: Yup.string()
+      .min(4)
+      .required(),
+    otherwise: Yup.string().strip(true),
+  }),
+});
 
 function App() {
+  const [updatePassword, setUpdatePassword] = useState(false);
+
+  const initialData = {
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+  };
+
+  function handleSubmit(data) {
+    console.log('Data:', data)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Form
+      schema={schema}
+      initialData={initialData}
+      context={{ updatePassword }}
+      onSubmit={handleSubmit}
+    >
+      <Input name="name" />
+      <Input name="email" />
+
+      <input
+        type="checkbox"
+        name="Update Password"
+        checked={updatePassword}
+        onChange={e => setUpdatePassword(e.target.checked)}
+      />
+
+      <Input name="password" type="password" />
+
+      <button type="submit">Save</button>
+    </Form>
   );
 }
-
 export default App;
